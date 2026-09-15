@@ -1,7 +1,7 @@
 import React from "react";
 import { Composition } from "remotion";
 import { Walkthrough } from "./Walkthrough";
-import { FPS, scenes, totalSeconds } from "./scenes";
+import { FPS, scenes, totalSeconds, VIDEO_WIDTH, VIDEO_HEIGHT } from "./scenes";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -10,8 +10,8 @@ export const RemotionRoot: React.FC = () => {
       component={Walkthrough}
       durationInFrames={Math.round(totalSeconds * FPS)}
       fps={FPS}
-      width={1080}
-      height={1920}
+      width={VIDEO_WIDTH}
+      height={VIDEO_HEIGHT}
       defaultProps={{ scenes }}
     />
   );

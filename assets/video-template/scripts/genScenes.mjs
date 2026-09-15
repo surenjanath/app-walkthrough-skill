@@ -10,6 +10,11 @@ const script = JSON.parse(readFileSync(join(ROOT, "script.json"), "utf-8"));
 
 const esc = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
+// "mobile" -> vertical phone-frame video (1080x1920). "web" -> landscape
+// browser-chrome-frame video (1920x1080), for websites/web apps.
+const PLATFORM = script.platform === "web" ? "web" : "mobile";
+const [VIDEO_WIDTH, VIDEO_HEIGHT] = PLATFORM === "web" ? [1920, 1080] : [1080, 1920];
+
 const sceneEntries = script.scenes
   .map(
     (s) => `  {
@@ -19,7 +24,7 @@ const sceneEntries = script.scenes
     title: "${esc(s.title)}",
     narration:
       "${esc(s.narration)}",
-    seconds: ${s.seconds},
+    seconds: ${s.seconds},${s.url ? `\n    url: "${esc(s.url)}",` : ""}
   },`
   )
   .join("\n");
@@ -33,9 +38,13 @@ export type Scene = {
   title: string;
   narration: string;
   seconds: number;
+  url?: string; // shown in the browser-chrome address bar when PLATFORM === "web"
 };
 
 export const FPS = 30;
+export const PLATFORM: "mobile" | "web" = "${PLATFORM}";
+export const VIDEO_WIDTH = ${VIDEO_WIDTH};
+export const VIDEO_HEIGHT = ${VIDEO_HEIGHT};
 
 export const APP_NAME = "${esc(script.appName)}";
 export const TAGLINE = "${esc(script.tagline)}";

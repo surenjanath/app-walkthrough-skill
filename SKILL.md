@@ -1,6 +1,6 @@
 ---
 name: app-walkthrough
-description: Generate a narrated walkthrough video (Remotion) and a styled PDF feature guide for a mobile or web app, by capturing real screens from a running emulator/simulator/browser, writing a narration script, synthesizing local TTS voiceover, and rendering both deliverables. Use when the user asks for an app walkthrough, demo video, feature-guide video/PDF, or onboarding video for an app they're building.
+description: Generate a narrated walkthrough video (Remotion) and a styled PDF feature guide for a mobile app, website, or web app, by capturing real screens from a running emulator/simulator/browser, writing a narration script, synthesizing local TTS voiceover, and rendering both deliverables. Use when the user asks for an app walkthrough, demo video, feature-guide video/PDF, product tour, or onboarding video — for a mobile app, a marketing website, or a SaaS/web app they're building.
 arguments: [target]
 ---
 
@@ -21,19 +21,30 @@ never edit the app's own source.
 
 ## 0. Discover, then ask only what's genuinely unclear
 
-Before asking the user anything, spend a few tool calls learning the app:
+First, decide **`platform`: `"mobile"` or `"web"`** — this drives everything
+downstream (capture method, video orientation, PDF layout). Usually obvious
+from the target: a React Native/Expo/Flutter/native app → `mobile`; a
+website or a browser-based web app (Next.js, Rails, Django, a SPA, etc.) →
+`web`. If genuinely ambiguous (e.g. an Expo app that also ships a web
+build), ask.
+
+Then spend a few tool calls learning the app before asking anything else:
 - Find its design system (theme file, `design_guidelines.json`,
   Tailwind config, or similar) for brand colors and fonts.
 - Find its real logo asset: grep the app's source for
-  `require(.*[Ll]ogo` (RN) or equivalent, to find the file actually
-  rendered in the UI, not just anything named `icon.png` in `assets/`.
-- Find its screen/route list (`app/` for Expo Router, `src/screens`,
-  `pages/`, etc.) to scope what a "full tour" covers.
+  `require(.*[Ll]ogo` (RN) or `logo\.(svg|png)` / an `<img>`/`<Image>`
+  referencing it (web), to find the file actually rendered in the UI, not
+  just anything named `icon.png` in an assets folder.
+- Find its screen/route list (`app/` for Expo Router or Next.js App Router,
+  `src/screens`, `pages/`, etc.) to scope what a "full tour" covers.
 - Check whether it needs a login and whether a demo/mock mode exists, or if
   it always talks to a live backend.
-- Check available capture surfaces: booted iOS simulator
-  (`xcrun simctl list devices`), Android emulator AVDs
-  (`emulator -list-avds`), or a dev server + browser.
+- Check available capture surfaces:
+  - **mobile:** booted iOS simulator (`xcrun simctl list devices`), Android
+    emulator AVDs (`emulator -list-avds`).
+  - **web:** a local dev server (`npm run dev` / `next dev` / etc. — check
+    `package.json` `scripts`) or an already-deployed URL. Prefer the dev
+    server for anything gated behind auth or still in development.
 
 Then ask (via AskUserQuestion, 2-4 options each, only what's ambiguous):
 1. **Narration approach** — local TTS (Kokoro, free) vs. captions-only vs.
@@ -60,13 +71,12 @@ by both the PDF and the video).
 
 ## 2. Capture screens
 
-**Read `reference.md`'s Phase 1 section before doing this** — the
-coordinate-scaling and Modal-touch-bounds issues are the single biggest
+**Read `reference.md`'s capture-phase section for your platform before
+doing this** — mobile's coordinate-scaling/Modal-touch-bounds issues and
+web's cookie-banner/full-page-capture issues are each the single biggest
 time sink if you hit them blind.
 
-General flow (Android emulator shown; adapt for iOS simulator /
-`xcrun simctl io booted screenshot`, or Playwright/`claude-in-chrome` for a
-web app):
+### Mobile (Android emulator shown; adapt for iOS simulator)
 
 ```bash
 emulator -list-avds
@@ -81,25 +91,60 @@ adb shell monkey -p <package> -c android.intent.category.LAUNCHER 1
 adb exec-out screencap -p > walkthrough/screenshots/NN_name.png
 ```
 
-Number screenshots in narrative order (`01_`, `02_`, ...) so they sort
-naturally. Capture: first-launch/onboarding, sign-in, the main
-tabs/screens, any in-app guided tour, key detail screens, and settings.
 Log out / clear app data (`adb shell pm clear <package>`) and relaunch when
-you need a true first-run state.
+you need a true first-run state. When a tap doesn't do anything on a
+clearly-visible button, don't just retry the same coordinates — see
+reference.md's Modal-bounds section and switch to `uiautomator dump`
+immediately rather than guessing repeatedly.
 
-When a tap doesn't do anything on a clearly-visible button, don't just
-retry the same coordinates — see reference.md's Modal-bounds section and
-switch to `uiautomator dump` immediately rather than guessing repeatedly.
+### Web (website or web app)
+
+Prefer the `claude-in-chrome` MCP tools when available — they give you
+real interaction (click, fill forms, log in, navigate an SPA's client-side
+routes) the same way the mobile flow uses `adb`, not just static
+screenshots:
+1. `tabs_context_mcp` / `tabs_create_mcp` to open a tab at the dev server or
+   deployed URL.
+2. `navigate` / `computer` to click through to each screen worth showing;
+   dismiss cookie/consent banners first (see reference.md — they ruin a
+   screenshot if left up).
+3. Capture each screen — prefer a **viewport-sized** screenshot
+   (matches what a visitor actually sees first) over a full-page scroll
+   capture unless a specific scene is explicitly about a long page (e.g. a
+   pricing page or a landing page's full scroll story).
+
+Without `claude-in-chrome` (static pages, or scripting is simpler), headless
+Chrome works directly:
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless --disable-gpu --window-size=1920,1080 \
+  --screenshot="walkthrough/screenshots/NN_name.png" \
+  --virtual-time-budget=8000 --run-all-compositor-stages-before-draw \
+  "https://the-url-or-localhost:port/route"
+```
+Pick a `--window-size` and stick to it for every screen in the tour —
+mixed viewport sizes look inconsistent once framed in the browser-chrome
+mockup. 1920x1080 (desktop) is the sensible default; use a narrower size
+(e.g. 390x844) instead if the walkthrough is specifically about the site's
+*mobile-responsive* view.
+
+Number screenshots in narrative order (`01_`, `02_`, ...) either way, so
+they sort naturally. Capture: the homepage/landing, sign-in or onboarding if
+present, the main authenticated views, key feature/detail pages, and
+settings/account.
 
 ## 3. Write `walkthrough/script.json`
 
 This is the single source of truth for both deliverables. Shape it like
-`${CLAUDE_SKILL_DIR}/assets/script.example.json` (read that file now):
+`${CLAUDE_SKILL_DIR}/assets/script.example.json` for a mobile app, or
+`${CLAUDE_SKILL_DIR}/assets/script.web.example.json` for a website/web app
+(read the one matching your `platform` now):
 
 ```jsonc
 {
   "appName": "...",
   "tagline": "...",
+  "platform": "mobile",   // or "web" — omit for mobile, the default
   "brand": { "primary": "#...", "primaryLight": "#...", "primaryDark": "#...",
              "gold": "#...", "silver": "#...", "platinum": "#...",
              "bg": "#...", "surface": "#...",
@@ -108,10 +153,18 @@ This is the single source of truth for both deliverables. Shape it like
     { "id": "intro", "image": null, "eyebrow": "...", "title": "...",
       "narration": "1-3 spoken sentences.", "seconds": 12 },
     { "id": "some-screen", "image": "05_screen.png", "eyebrow": "...",
-      "title": "...", "narration": "...", "seconds": 12 }
+      "title": "...", "narration": "...", "seconds": 12,
+      "url": "example.com/route" }  // web only — shown in the browser chrome bar
   ]
 }
 ```
+
+`platform` determines both deliverables' layout automatically — nothing
+else to configure: the video renders vertical 1080x1920 with a phone-bezel
+frame for `mobile`, or landscape 1920x1080 with a browser-chrome frame
+(traffic-light dots + optional `url` pill) for `web`; the PDF switches
+between a narrow phone frame beside the copy (`mobile`) and a wide
+browser-chrome frame stacked above the copy (`web`) the same way.
 
 Pull `brand` colors from the app's real design tokens found in step 0, not
 invented ones. Write narration in the app's actual voice/tone (check for a
@@ -165,8 +218,10 @@ node scripts/applyDurations.mjs
 ```
 Customize before rendering:
 - `src/fonts.ts` — swap in the app's actual heading/body Google Fonts.
-- `src/Scene.tsx` — the phone-frame mockup + title-card components; already
-  generic (reads `BRAND`/logo from generated `scenes.ts` + `public/logo.png`).
+- `src/Scene.tsx` — the phone-frame mockup (mobile) / browser-chrome mockup
+  (web) + title-card components; already generic (reads `BRAND`/logo/
+  `PLATFORM`/dimensions from generated `scenes.ts` + `public/logo.png`, and
+  `Walkthrough.tsx` picks the right layout automatically from `PLATFORM`).
   Only touch this if the app's layout needs something the template doesn't
   cover. **No pan/zoom by default** — only add motion back if asked.
 

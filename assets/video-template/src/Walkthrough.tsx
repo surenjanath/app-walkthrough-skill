@@ -1,7 +1,7 @@
 import React from "react";
 import { Sequence, AbsoluteFill } from "remotion";
-import { scenes, FPS, Scene, BRAND } from "./scenes";
-import { TitleCard, ScreenShowcase } from "./Scene";
+import { scenes, FPS, Scene, BRAND, PLATFORM } from "./scenes";
+import { TitleCard, ScreenShowcase, WebScreenShowcase } from "./Scene";
 
 export const Walkthrough: React.FC<{ scenes: Scene[] }> = ({
   scenes: sceneList,
@@ -16,6 +16,8 @@ export const Walkthrough: React.FC<{ scenes: Scene[] }> = ({
     startFrame += duration;
   });
 
+  const Showcase = PLATFORM === "web" ? WebScreenShowcase : ScreenShowcase;
+
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.bg }}>
       {items.map(({ scene, start, duration, index }) => (
@@ -23,7 +25,7 @@ export const Walkthrough: React.FC<{ scenes: Scene[] }> = ({
           {scene.id === "intro" || scene.id === "outro" ? (
             <TitleCard scene={scene} durationInFrames={duration} />
           ) : (
-            <ScreenShowcase scene={scene} durationInFrames={duration} index={index} />
+            <Showcase scene={scene} durationInFrames={duration} index={index} />
           )}
         </Sequence>
       ))}

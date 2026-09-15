@@ -45,6 +45,66 @@ const LogoBadge: React.FC<{ width?: number; padding?: number }> = ({
   </div>
 );
 
+// Generic browser-window chrome (traffic-light dots + a URL pill) around a
+// screenshot, for "web" platform scenes. `object-fit: contain` inside so it
+// doesn't matter whether the captured screenshot is a 16:9 viewport or a
+// tall full-page capture — it always letterboxes cleanly instead of cropping.
+const BrowserChrome: React.FC<{
+  url?: string;
+  width: number;
+  height: number;
+  children: React.ReactNode;
+}> = ({ url, width, height, children }) => (
+  <div
+    style={{
+      width,
+      height,
+      borderRadius: 20,
+      backgroundColor: "#E2E4EA",
+      boxShadow: "0 40px 80px -20px rgba(18,32,24,0.45)",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <div
+      style={{
+        height: 52,
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+        gap: 20,
+        padding: "0 20px",
+        backgroundColor: "#EDEEF2",
+      }}
+    >
+      <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ width: 13, height: 13, borderRadius: 7, background: "#FF5F57" }} />
+        <div style={{ width: 13, height: 13, borderRadius: 7, background: "#FEBC2E" }} />
+        <div style={{ width: 13, height: 13, borderRadius: 7, background: "#28C840" }} />
+      </div>
+      {url ? (
+        <div
+          style={{
+            flex: 1,
+            maxWidth: 420,
+            backgroundColor: "#fff",
+            borderRadius: 999,
+            padding: "7px 18px",
+            fontFamily: MANROPE,
+            fontWeight: 600,
+            fontSize: 15,
+            color: "#6B7280",
+          }}
+        >
+          {url}
+        </div>
+      ) : null}
+    </div>
+    <div style={{ flex: 1, backgroundColor: "#fff", position: "relative" }}>{children}</div>
+  </div>
+);
+
 const hasAudio = (id: string) => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -240,6 +300,102 @@ export const ScreenShowcase: React.FC<{
           background: `linear-gradient(0deg, ${BRAND.bg} 40%, rgba(248,249,250,0))`,
         }}
       />
+    </AbsoluteFill>
+  );
+};
+
+// Landscape layout for "web" platform (websites / web apps): a dark side
+// panel with the title copy, and a browser-chrome-framed screenshot filling
+// the rest of the 1920x1080 frame. No pan/zoom, matching the mobile layout.
+export const WebScreenShowcase: React.FC<{
+  scene: SceneType;
+  durationInFrames: number;
+  index: number;
+}> = ({ scene, durationInFrames }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const opacity = useFade(durationInFrames);
+  const audioAvailable = hasAudio(scene.id);
+
+  const enter = spring({ frame, fps, from: 60, to: 0, durationInFrames: 35 });
+  const textIn = spring({ frame: frame - 8, fps, from: 24, to: 0, durationInFrames: 30 });
+  const textStyle = {
+    transform: `translateY(${textIn}px)`,
+    opacity: interpolate(textIn, [0, 24], [1, 0]),
+  };
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: BRAND.bg, opacity, flexDirection: "row" }}>
+      {audioAvailable ? <Audio src={staticFile(`audio/${scene.id}.mp3`)} /> : null}
+
+      <div
+        style={{
+          width: 620,
+          flexShrink: 0,
+          height: "100%",
+          background: `linear-gradient(160deg, ${BRAND.primary} 0%, ${BRAND.primaryDark} 100%)`,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "0 64px",
+        }}
+      >
+        <div style={textStyle}>
+          <LogoBadge width={150} padding={14} />
+        </div>
+        <div
+          style={{
+            ...textStyle,
+            marginTop: 32,
+            fontFamily: MANROPE,
+            fontWeight: 700,
+            fontSize: 17,
+            letterSpacing: 3,
+            color: BRAND.gold,
+            textTransform: "uppercase",
+          }}
+        >
+          {scene.eyebrow}
+        </div>
+        <div
+          style={{
+            ...textStyle,
+            marginTop: 14,
+            fontFamily: OUTFIT,
+            fontWeight: 500,
+            fontSize: 46,
+            lineHeight: 1.15,
+            color: "#FFFFFF",
+          }}
+        >
+          {scene.title}
+        </div>
+      </div>
+
+      <AbsoluteFill
+        style={{
+          left: 620,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 70,
+        }}
+      >
+        <div style={{ transform: `translateY(${enter}px)` }}>
+          <BrowserChrome url={scene.url} width={1140} height={780}>
+            {scene.image ? (
+              <Img
+                src={staticFile(`screens/${scene.image}`)}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  display: "block",
+                }}
+              />
+            ) : null}
+          </BrowserChrome>
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

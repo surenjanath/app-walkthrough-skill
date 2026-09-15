@@ -8,6 +8,9 @@ const script = JSON.parse(readFileSync(join(ROOT, "script.json"), "utf-8"));
 const SCREENS = join(ROOT, "screenshots");
 
 const B = script.brand;
+// "mobile" -> narrow phone-frame media, side-by-side with copy.
+// "web" -> wide browser-chrome-frame media, stacked above the copy.
+const PLATFORM = script.platform === "web" ? "web" : "mobile";
 
 // CUSTOMIZE: for each scene id in script.json, optionally provide a richer
 // written kicker/body/bullets for the PDF (beyond the spoken narration).
@@ -33,15 +36,19 @@ const sectionsHtml = script.scenes
     const d = DETAILS[scene.id] || {};
     const imgPath = scene.image ? join(SCREENS, scene.image) : null;
     const num = String(i + 1).padStart(2, "0");
+    const media =
+      PLATFORM === "web"
+        ? imgPath
+          ? `<div class="browser-frame"><div class="browser-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>${scene.url ? `<span class="browser-url">${scene.url}</span>` : ""}</div><img src="file://${imgPath}" /></div>`
+          : `<div class="browser-frame placeholder"></div>`
+        : imgPath
+          ? `<div class="phone-frame"><img src="file://${imgPath}" /></div>`
+          : `<div class="phone-frame placeholder"></div>`;
     return `
   <div class="page section-page">
-    <section class="scene ${i % 2 === 1 ? "reverse" : ""}">
+    <section class="scene ${PLATFORM === "web" ? "web" : i % 2 === 1 ? "reverse" : ""}">
       <div class="scene-media">
-        ${
-          imgPath
-            ? `<div class="phone-frame"><img src="file://${imgPath}" /></div>`
-            : `<div class="phone-frame placeholder"></div>`
-        }
+        ${media}
       </div>
       <div class="scene-copy">
         <div class="scene-num">${num} / ${String(script.scenes.length).padStart(2, "0")}</div>
@@ -183,6 +190,29 @@ const html = `<!doctype html>
   }
   .phone-frame img { width: 100%; display: block; border-radius: 5.2mm; }
   .phone-frame.placeholder { height: 130mm; }
+
+  /* Web platform: stacked layout, wide browser-chrome frame on top */
+  .scene.web { flex-direction: column; align-items: stretch; gap: 8mm; height: auto; }
+  .scene.web .scene-media { flex: none; width: 100%; }
+  .browser-frame {
+    width: 100%; max-height: 150mm; border-radius: 4mm; overflow: hidden;
+    background: #E2E4EA; box-shadow: 0 10px 30px -8px rgba(18,32,24,0.35);
+    display: flex; flex-direction: column;
+  }
+  /* object-fit: contain — a web screenshot's aspect ratio is unpredictable
+     (a 16:9 viewport capture vs. a tall full-page capture), so this always
+     letterboxes inside the capped height instead of blowing out the page. */
+  .browser-frame img { width: 100%; flex: 1; min-height: 0; object-fit: contain; background: #fff; display: block; }
+  .browser-frame.placeholder { height: 90mm; }
+  .browser-bar { display: flex; align-items: center; gap: 3mm; padding: 2.6mm 4mm; background: #EDEEF2; }
+  .browser-bar .dot { width: 2.6mm; height: 2.6mm; border-radius: 50%; display: inline-block; }
+  .browser-bar .dot.r { background: #FF5F57; }
+  .browser-bar .dot.y { background: #FEBC2E; }
+  .browser-bar .dot.g { background: #28C840; }
+  .browser-url {
+    margin-left: 2mm; background: #fff; border-radius: 999px; padding: 1.3mm 4mm;
+    font-size: 9px; color: var(--text-secondary); font-weight: 600;
+  }
 
   .scene-copy { flex: 1; }
   .scene-num {

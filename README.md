@@ -1,14 +1,16 @@
 # app-walkthrough
 
-A [Claude Code](https://claude.com/claude-code) skill that turns a mobile or
-web app into a **narrated walkthrough video** and a **matching styled PDF
-guide** — by actually capturing real screens from a running
-emulator/simulator/browser, writing narration, synthesizing local
+A [Claude Code](https://claude.com/claude-code) skill that turns a mobile
+app, website, or web app into a **narrated walkthrough video** and a
+**matching styled PDF guide** — by actually capturing real screens from a
+running emulator/simulator/browser, writing narration, synthesizing local
 text-to-speech, and rendering both deliverables end to end.
 
 No cloud TTS bill, no manual screen recording, no slide deck. Point it at an
 app and it does the whole pipeline: capture → script → voiceover → video →
-PDF.
+PDF. Mobile apps get a vertical video with a phone-bezel mockup; websites
+and web apps get a landscape video with a browser-chrome mockup — same
+pipeline, one `"platform"` field in the script picks the layout.
 
 ## What you get
 
@@ -80,11 +82,14 @@ reference.md      hard-won gotchas from building this (adb coordinate math, a Re
                    Native Modal touch-bounds bug, Remotion interpolate() pitfalls,
                    Chrome print-to-pdf pagination, Kokoro setup, and more)
 assets/
-  script.example.json   the script.json shape both deliverables are generated from
-  audio/                Kokoro narration generator
-  docs/                 the PDF HTML generator (headless-Chrome print-to-pdf)
-  video-template/       a ready-to-copy Remotion project (phone-frame mockup,
-                         brand-badge logo, synced voiceover, no motion by default)
+  script.example.json       the script.json shape for a mobile app
+  script.web.example.json   the script.json shape for a website / web app
+  audio/                    Kokoro narration generator
+  docs/                     the PDF HTML generator (headless-Chrome print-to-pdf;
+                             phone-frame or browser-chrome layout, by platform)
+  video-template/           a ready-to-copy Remotion project (phone-frame mockup for
+                             mobile, browser-chrome mockup for web, brand-badge logo,
+                             synced voiceover, no motion by default)
 example/           a full real run of the pipeline against a synthetic demo app
 ```
 

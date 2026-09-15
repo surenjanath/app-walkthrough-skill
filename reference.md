@@ -5,7 +5,7 @@ an Expo/React Native app) end-to-end: emulator capture, local TTS, a Remotion
 video, and a styled PDF. Read this before each phase below — every item here
 cost real time to debug once.
 
-## Phase 1 — Screen capture (Android emulator + adb)
+## Phase 1a — Screen capture, mobile (Android emulator + adb)
 
 **Coordinate scaling.** When you `Read` a screenshot PNG, the tool reports
 something like "original 1080x2400, displayed at 900x2000. Multiply
@@ -83,6 +83,53 @@ narration/PDF/video content.
 IDs, policy numbers). Flag this explicitly before the user shares the
 finished video/PDF externally.
 
+## Phase 1b — Screen capture, web (browser)
+
+**Dismiss cookie/consent banners before every capture, not just the first.**
+Many consent-management platforms re-show the banner (or a smaller variant)
+on client-side route changes, not just full page loads — if scene 4's
+screenshot has a banner and scene 1's doesn't, it's not flaky, the SPA
+navigation just re-triggered it. Check each screenshot, don't assume
+dismissing it once covers the whole capture session.
+
+**Wait for hydration/animations, not just page load.** A screenshot taken
+the instant `--screenshot` fires can catch a skeleton loader, an
+un-hydrated SSR shell, or a mid-fade-in state. Give the page a beat
+(`--virtual-time-budget=8000`+ for headless Chrome, or an explicit short
+wait after `navigate` with `claude-in-chrome`) before capturing, and for
+anything with scroll-triggered animations, scroll past the fold once first
+so those have already fired.
+
+**Full-page vs. viewport capture is a real decision, not a default.** A
+full-page scrolling capture (e.g. `--screenshot` variants that capture the
+whole scrollable height) shows a page's entire story in one image, but it
+produces a very tall, narrow-looking image once scaled into a frame —
+usually worse for a walkthrough than several viewport-sized screenshots at
+natural scroll stops (hero, features section, pricing, footer/CTA) treated
+as separate scenes. Reserve full-page capture for the rare scene that's
+specifically *about* a page's total scroll story.
+
+**Pick one viewport size and hold it for the whole tour.** Mixing a
+1920x1080 capture with a 1366x768 one makes the finished browser-chrome
+mockups look inconsistent — different relative UI scale, different
+whitespace proportions. Decide desktop vs. mobile-responsive up front (ask
+the user only if the site's target audience genuinely isn't obvious) and
+capture every scene at that one size.
+
+**Auth for web apps works the same as mobile — no demo mode, no
+assumptions.** If a webapp needs login and there's no seeded demo account,
+ask the user for real test credentials before attempting authenticated
+screens, exactly like the mobile flow. Treat them the same way: never
+written to a file, never echoed into narration/PDF/video content.
+
+**`claude-in-chrome` over raw headless Chrome when the flow needs real
+interaction.** Headless Chrome's `--screenshot` flag is fine for static
+pages you can reach by URL alone. The moment the walkthrough needs to click
+through a flow — log in, open a modal, advance a wizard, navigate an SPA's
+client-side routes that don't have their own loadable URL — use the
+`claude-in-chrome` MCP tools instead (`navigate`, `computer`, screenshot);
+it's the web equivalent of driving the mobile app via `adb`.
+
 ## Phase 3 — Local TTS (Kokoro)
 
 No API key, no per-generation cost, runs on CPU fine for short narration
@@ -153,6 +200,15 @@ reads as "busy" in a 15+ scene walkthrough; default to a static image in the
 phone frame with just an entrance spring + text fade, and only add
 pan/zoom back in if specifically requested.
 
+**Web-platform screenshots have an unpredictable aspect ratio — always
+letterbox, never assume it fills the frame.** A mobile screenshot is always
+roughly the same tall aspect ratio, but a web capture could be a 16:9
+viewport, an ultrawide, or a very tall full-page scroll capture. Size the
+browser-chrome frame to a fixed box and put the screenshot inside with
+`object-fit: contain` (not `cover`, which would crop, and not letting the
+image drive the frame's size, which is what actually broke the PDF version
+of this — see Phase 5).
+
 ## Phase 5 — Styled PDF (HTML → headless Chrome print-to-pdf)
 
 **Give every logical page its own explicitly-sized `<div class="page">`,
@@ -171,10 +227,23 @@ Fix: one `.page` class, used once per logical page, with:
         overflow: hidden; page-break-after: always; page-break-inside: avoid; }
 ```
 Each scene/section gets its own `.page` div. Verify page count after
-generating: `mdls -name kMDItemNumberOfPages file.pdf` should equal
-cover + TOC + scene-count + closing exactly. If it's off by even one,
-something overflowed — render suspect pages to PNG and look
+generating — `pdfinfo file.pdf | grep Pages` (reliable); `mdls -name
+kMDItemNumberOfPages file.pdf` also works but can return `(null)` on a
+freshly-written file before Spotlight indexes it, which looks like failure
+but isn't — don't trust a null result, re-check with `pdfinfo`. Page count
+should equal cover + TOC + scene-count + closing exactly. If it's off by
+even one, something overflowed — render suspect pages to PNG and look
 (`pdftoppm -png -r 100 -f N -l N file.pdf out`) rather than guessing.
+
+**A web-platform screenshot with an unconstrained-height frame will push
+the copy text off the page.** The mobile phone-frame is narrow so this
+never comes up, but a "browser frame sized to 100% width" for a web
+screenshot inherits whatever height the image's aspect ratio implies — a
+tall full-page capture can make the frame taller than the whole page,
+shoving the title/body/bullets below it clean off the bottom (silently;
+nothing errors, the PDF just renders wrong). Cap it: `max-height` on the
+frame, `object-fit: contain` + `flex: 1; min-height: 0` on the `<img>`
+inside a flex column, exactly like the video frame's fix above.
 
 **Print command:**
 ```bash
