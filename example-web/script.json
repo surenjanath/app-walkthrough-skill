@@ -1,0 +1,72 @@
+{
+  "appName": "Acme Rewards",
+  "tagline": "Every visit, rewarded.",
+  "platform": "web",
+  "brand": {
+    "primary": "#4F46E5",
+    "primaryLight": "#6D5EF0",
+    "primaryDark": "#2E27A8",
+    "gold": "#F59E0B",
+    "silver": "#C0C0C0",
+    "platinum": "#5E6973",
+    "bg": "#F4F5F9",
+    "surface": "#FFFFFF",
+    "textPrimary": "#1F2340",
+    "textSecondary": "#8A8DA6",
+    "success": "#16A34A"
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "image": null,
+      "eyebrow": "ACME REWARDS",
+      "title": "A Sample Web Walkthrough",
+      "narration": "This is the web platform version of the same demo: Acme Rewards, running as a website and web app. Same pipeline as the mobile example, a different frame around the same idea.",
+      "seconds": 13
+    },
+    {
+      "id": "homepage",
+      "image": "01_homepage.png",
+      "eyebrow": "HOMEPAGE",
+      "title": "The First Impression",
+      "narration": "The marketing homepage leads with a single clear promise and one obvious call to action, before a visitor has signed in at all.",
+      "url": "acmerewards.com",
+      "seconds": 11
+    },
+    {
+      "id": "dashboard",
+      "image": "02_dashboard.png",
+      "eyebrow": "DASHBOARD",
+      "title": "Everything at a Glance",
+      "narration": "Once signed in, the dashboard surfaces the membership card, points balance, savings this month, and how close the member is to the next tier.",
+      "url": "app.acmerewards.com/dashboard",
+      "seconds": 12
+    },
+    {
+      "id": "offers",
+      "image": "03_offers.png",
+      "eyebrow": "OFFERS",
+      "title": "Every Partner, Searchable",
+      "narration": "The offers page lists every active discount across the partner network, with flagship partners pinned to the top and a search bar for everything else.",
+      "url": "app.acmerewards.com/offers",
+      "seconds": 11
+    },
+    {
+      "id": "settings",
+      "image": "04_settings.png",
+      "eyebrow": "SETTINGS",
+      "title": "Notifications and Security",
+      "narration": "Settings covers notification preferences and account security, including two-factor authentication.",
+      "url": "app.acmerewards.com/settings",
+      "seconds": 9
+    },
+    {
+      "id": "outro",
+      "image": null,
+      "eyebrow": "ACME REWARDS",
+      "title": "Same Skill, Any Platform",
+      "narration": "Mobile app or website, the app-walkthrough skill runs the same pipeline: capture, script, local narration, and a rendered video and PDF, framed correctly for whichever platform you're showing.",
+      "seconds": 12
+    }
+  ]
+}

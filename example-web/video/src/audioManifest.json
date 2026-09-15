@@ -1,0 +1,8 @@
+{
+  "intro": true,
+  "homepage": true,
+  "dashboard": true,
+  "offers": true,
+  "settings": true,
+  "outro": true
+}

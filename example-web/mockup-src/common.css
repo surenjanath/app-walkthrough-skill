@@ -1,0 +1,24 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; font-family: Georgia, 'Times New Roman', serif; background: #F4F5F9; overflow: hidden; }
+body.sans { font-family: Arial, Helvetica, sans-serif; }
+
+.navbar { height: 88px; display: flex; align-items: center; justify-content: space-between; padding: 0 64px; background: #fff; border-bottom: 1px solid #ECEDF3; }
+.brand-row { display: flex; align-items: center; gap: 16px; }
+.brand-mark { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #4F46E5, #7C3AED); display: flex; align-items: center; justify-content: center; }
+.brand-name { font-weight: 700; font-size: 26px; color: #1F2340; }
+.nav-links { display: flex; gap: 44px; font-family: Arial, sans-serif; font-weight: 600; font-size: 17px; color: #4B4F6B; }
+.nav-cta { background: #4F46E5; color: #fff; padding: 14px 30px; border-radius: 999px; font-family: Arial, sans-serif; font-weight: 700; font-size: 17px; }
+
+.sidebar { width: 260px; height: 1080px; background: #1F2340; padding: 36px 0; position: absolute; top: 0; left: 0; }
+.sidebar .brand-row { padding: 0 32px 40px; }
+.sidebar .brand-name { color: #fff; }
+.side-link { padding: 18px 32px; font-family: Arial, sans-serif; font-weight: 600; font-size: 17px; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 16px; }
+.side-link.active { color: #fff; background: rgba(255,255,255,0.08); border-right: 3px solid #7C7AF0; }
+
+.topbar { height: 96px; margin-left: 260px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; background: #fff; border-bottom: 1px solid #ECEDF3; font-family: Arial, sans-serif; }
+.content { margin-left: 260px; padding: 48px; }
+
+.card { background: #fff; border-radius: 20px; box-shadow: 0 8px 24px -10px rgba(31,35,64,0.10); }
+.pill { border-radius: 999px; padding: 12px 26px; font-weight: 700; font-size: 16px; font-family: Arial, sans-serif; }
+.pill-primary { background: #4F46E5; color: #fff; }
+.pill-ghost { background: #fff; color: #4F46E5; border: 2px solid #E4E4F7; }
