@@ -1,0 +1,22 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+html, body { width: 1080px; height: 2400px; font-family: 'Manrope', sans-serif; background: #F4F5F9; overflow: hidden; }
+
+.status { display: flex; justify-content: space-between; align-items: center; padding: 28px 44px 0; font-size: 22px; color: #111827; font-weight: 600; }
+.status .icons { display: flex; gap: 10px; align-items: center; }
+
+.header { padding: 24px 44px 8px; }
+.brand-row { display: flex; align-items: center; gap: 14px; }
+.brand-mark { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #4F46E5, #7C3AED); display: flex; align-items: center; justify-content: center; }
+.brand-mark svg { width: 24px; height: 24px; }
+.brand-name { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 30px; color: #1F2340; }
+
+.tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 170px; background: #fff; border-top: 1px solid #ECEDF3; display: flex; }
+.tabbar .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 20px; color: #9CA3AF; font-weight: 600; }
+.tabbar .tab.active { color: #4F46E5; }
+.tabbar .dot { width: 44px; height: 44px; border-radius: 12px; }
+
+.card { background: #fff; border-radius: 32px; box-shadow: 0 10px 30px -12px rgba(31,35,64,0.12); }
+.pill { border-radius: 999px; padding: 16px 28px; font-weight: 700; font-size: 22px; }
+.pill-primary { background: #4F46E5; color: #fff; }
+.pill-ghost { background: #fff; color: #4F46E5; border: 2px solid #E4E4F7; }

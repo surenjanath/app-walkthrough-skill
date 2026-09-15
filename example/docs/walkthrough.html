@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Acme Rewards — App Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4F46E5;
+    --primary-light: #6D5EF0;
+    --primary-dark: #2E27A8;
+    --gold: #F59E0B;
+    --bg: #F4F5F9;
+    --surface: #FFFFFF;
+    --text: #1F2340;
+    --text-secondary: #8A8DA6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 12.5px;
+  }
+  h1, h2, h3 { font-family: 'Outfit', sans-serif; margin: 0; }
+  @page { size: A4; margin: 0; }
+
+  .page { width: 210mm; height: 297mm; position: relative; page-break-after: always; page-break-inside: avoid; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+
+  /* Cover */
+  .cover {
+    background: radial-gradient(circle at 50% 15%, var(--primary-light) 0%, var(--primary) 55%, var(--primary-dark) 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40mm 20mm;
+  }
+  .mark {
+    background: #fff; border-radius: 999px;
+    padding: 7mm 14mm; margin-bottom: 14mm;
+    box-shadow: 0 6px 18px -6px rgba(0,0,0,0.35);
+    display: inline-flex;
+  }
+  .mark img { height: 12mm; display: block; }
+  .mark.small { padding: 5mm 10mm; margin-bottom: 8mm; }
+  .mark.small img { height: 8mm; }
+  .cover .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-size: 12px;
+    margin-bottom: 8mm;
+  }
+  .cover h1 {
+    font-weight: 300;
+    font-size: 46px;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 6mm;
+  }
+  .cover .tagline {
+    font-size: 16px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    margin-bottom: 26mm;
+  }
+  .cover .meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+  }
+  .cover .divider { width: 48px; height: 2px; background: var(--gold); margin: 10mm 0; }
+
+  /* TOC */
+  .toc-page { padding: 26mm 22mm; background: var(--surface); }
+  .toc-page .kicker-top {
+    font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--primary); font-size: 11px; margin-bottom: 4mm;
+  }
+  .toc-page h1 { font-size: 30px; font-weight: 500; color: var(--text); margin-bottom: 14mm; }
+  .toc-row {
+    display: flex; align-items: baseline; gap: 6mm;
+    padding: 4.2mm 0; border-bottom: 1px solid #E5E7EB;
+  }
+  .toc-num { font-family: 'Outfit'; font-weight: 600; color: var(--gold); font-size: 13px; width: 10mm; }
+  .toc-title { font-family: 'Outfit'; font-weight: 500; font-size: 14px; flex: 1; color: var(--text); }
+  .toc-kicker { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Section pages */
+  .section-page { background: var(--surface); padding: 16mm 16mm; }
+  .scene {
+    display: flex;
+    align-items: center;
+    gap: 12mm;
+    height: 265mm;
+  }
+  .scene.reverse { flex-direction: row-reverse; }
+  .scene-media { flex: 0 0 68mm; display: flex; justify-content: center; }
+  .phone-frame {
+    width: 62mm;
+    border-radius: 7mm;
+    background: #0B0F0C;
+    padding: 2.2mm;
+    box-shadow: 0 10px 30px -8px rgba(18,32,24,0.4);
+  }
+  .phone-frame img { width: 100%; display: block; border-radius: 5.2mm; }
+  .phone-frame.placeholder { height: 130mm; }
+
+  .scene-copy { flex: 1; }
+  .scene-num {
+    font-family: 'Outfit'; font-weight: 600; color: var(--gold);
+    font-size: 11px; letter-spacing: 1px; margin-bottom: 3mm;
+  }
+  .kicker {
+    font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--primary); font-size: 10.5px; margin-bottom: 3mm;
+  }
+  .scene-copy h2 { font-size: 24px; font-weight: 500; color: var(--text); margin-bottom: 5mm; line-height: 1.2; }
+  .scene-copy .lead { font-size: 12.5px; line-height: 1.65; color: var(--text); margin-bottom: 5mm; }
+  .scene-copy ul { margin: 0; padding-left: 4.5mm; }
+  .scene-copy li { font-size: 11.5px; line-height: 1.55; color: var(--text-secondary); margin-bottom: 2mm; }
+  .scene-copy li::marker { color: var(--gold); }
+
+  /* Closing */
+  .closing {
+    background: radial-gradient(circle at 50% 85%, var(--primary-light) 0%, var(--primary) 55%, var(--primary-dark) 100%);
+    color: #fff; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 40mm 24mm;
+  }
+  .closing h2 { font-size: 30px; font-weight: 300; margin-bottom: 6mm; }
+  .closing p { font-size: 13px; color: rgba(255,255,255,0.8); max-width: 130mm; line-height: 1.7; }
+  .closing .tag { color: var(--gold); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 11px; margin-top: 10mm; }
+
+  .footer-strip {
+    position: absolute; bottom: 10mm; left: 16mm; right: 16mm;
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: var(--text-secondary); letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="page cover">
+    <div class="mark"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/assets/logo.png" /></div>
+    <div class="eyebrow">Complete App Walkthrough</div>
+    <h1>Acme Rewards</h1>
+    <div class="tagline">Every visit, rewarded.</div>
+    <div class="divider"></div>
+    <div class="meta">Feature Guide &amp; Screen-by-Screen Reference · September 15, 2026</div>
+  </div>
+
+  <div class="page toc-page">
+    <div class="kicker-top">Contents</div>
+    <h1>Everything in this guide</h1>
+    <div class="toc-row"><span class="toc-num">01</span><span class="toc-title">A Sample Walkthrough</span><span class="toc-kicker">About this example</span></div>
+<div class="toc-row"><span class="toc-num">02</span><span class="toc-title">Your Digital Card</span><span class="toc-kicker">First launch</span></div>
+<div class="toc-row"><span class="toc-num">03</span><span class="toc-title">Welcome Back</span><span class="toc-kicker">Authentication</span></div>
+<div class="toc-row"><span class="toc-num">04</span><span class="toc-title">The Digital Card</span><span class="toc-kicker">Home tab</span></div>
+<div class="toc-row"><span class="toc-num">05</span><span class="toc-title">Browse Every Offer</span><span class="toc-kicker">Offers tab</span></div>
+<div class="toc-row"><span class="toc-num">06</span><span class="toc-title">Every Term, Up Front</span><span class="toc-kicker">Offer details</span></div>
+<div class="toc-row"><span class="toc-num">07</span><span class="toc-title">Total Control</span><span class="toc-kicker">Settings tab</span></div>
+<div class="toc-row"><span class="toc-num">08</span><span class="toc-title">That's the Idea</span><span class="toc-kicker">Try it yourself</span></div>
+    <div class="footer-strip"><span>Acme Rewards</span><span>Page 2</span></div>
+  </div>
+
+  
+  <div class="page section-page">
+    <section class="scene ">
+      <div class="scene-media">
+        <div class="phone-frame placeholder"></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">01 / 08</div>
+        <div class="kicker">About this example</div>
+        <h2>A Sample Walkthrough</h2>
+        <p class="lead">Acme Rewards is a fictional demo app used to show exactly what the app-walkthrough skill produces: a narrated video and this matching PDF, both generated from the same script.json and a handful of screenshots.</p>
+        <ul><li>Every screen here is a synthetic mockup — no real company's UI or data</li><li>Same pipeline you'd run on a real app: capture, script, local TTS, Remotion video, styled PDF</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>01 / 08 — A Sample Walkthrough</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene reverse">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/01_onboarding.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">02 / 08</div>
+        <div class="kicker">First launch</div>
+        <h2>Your Digital Card</h2>
+        <p class="lead">A short onboarding flow introduces the app's core idea before sign-in is required.</p>
+        <ul><li>Skip is available at any point for returning users</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>02 / 08 — Your Digital Card</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene ">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/02_signin.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">03 / 08</div>
+        <div class="kicker">Authentication</div>
+        <h2>Welcome Back</h2>
+        <p class="lead">A lightweight sign-in screen: email, password, and a path to create an account for first-time users.</p>
+        <ul><li>Forgot-password recovery available directly on the sign-in screen</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>03 / 08 — Welcome Back</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene reverse">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/03_home.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">04 / 08</div>
+        <div class="kicker">Home tab</div>
+        <h2>The Digital Card</h2>
+        <p class="lead">The home tab renders the member's digital card with a live QR code and current tier.</p>
+        <ul><li>Quick actions for the full-screen card and the partner scanner</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>04 / 08 — The Digital Card</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene ">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/04_browse.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">05 / 08</div>
+        <div class="kicker">Offers tab</div>
+        <h2>Browse Every Offer</h2>
+        <p class="lead">A searchable, filterable directory of every active partner discount, with flagship partners pinned to the top.</p>
+        <ul><li>Category filters: Dining, Travel, Wellness</li><li>18 offers in this example</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>05 / 08 — Browse Every Offer</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene reverse">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/05_detail.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">06 / 08</div>
+        <div class="kicker">Offer details</div>
+        <h2>Every Term, Up Front</h2>
+        <p class="lead">Every offer opens into a detail screen spelling out the exact terms before a member commits to a visit.</p>
+        <ul><li>Validity window, stackability, and a one-tap proof-at-counter action</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>06 / 08 — Every Term, Up Front</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene ">
+      <div class="scene-media">
+        <div class="phone-frame"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/screenshots/06_settings.png" /></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">07 / 08</div>
+        <div class="kicker">Settings tab</div>
+        <h2>Total Control</h2>
+        <p class="lead">Appearance, security, and account controls in one place.</p>
+        <ul><li>Theme, password, biometric lock, log out</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>07 / 08 — Total Control</span></div>
+  </div>
+
+  <div class="page section-page">
+    <section class="scene reverse">
+      <div class="scene-media">
+        <div class="phone-frame placeholder"></div>
+      </div>
+      <div class="scene-copy">
+        <div class="scene-num">08 / 08</div>
+        <div class="kicker">Try it yourself</div>
+        <h2>That's the Idea</h2>
+        <p class="lead">Point the app-walkthrough skill at your own app to generate the real thing — see the skill's README for setup.</p>
+        <ul><li>github.com — search this repo's name to find the skill source</li></ul>
+      </div>
+    </section>
+    <div class="footer-strip"><span>Acme Rewards</span><span>08 / 08 — That's the Idea</span></div>
+  </div>
+
+  <div class="page closing">
+    <div class="mark small"><img src="file:///Users/surenjanath/Desktop/Claude Skills/app-walkthrough-skill/example/assets/logo.png" /></div>
+    <h2>Thank you</h2>
+    <p>This guide covered every major screen in Acme Rewards, from first launch through everyday use — the digital card, the partner network, profile &amp; history, settings, and the offline-verifiable insurance pass.</p>
+    <div class="tag">Every visit, rewarded.</div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "intro": true,
+  "onboarding": true,
+  "signin": true,
+  "home": true,
+  "browse": true,
+  "detail": true,
+  "settings": true,
+  "outro": true
+}

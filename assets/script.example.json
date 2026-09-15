@@ -1,0 +1,43 @@
+{
+  "appName": "Example App",
+  "tagline": "One line describing the app's core value",
+  "brand": {
+    "primary": "#123456",
+    "primaryLight": "#234567",
+    "primaryDark": "#012345",
+    "gold": "#D4AF37",
+    "silver": "#C0C0C0",
+    "platinum": "#5E6973",
+    "bg": "#F8F9FA",
+    "surface": "#FFFFFF",
+    "textPrimary": "#111827",
+    "textSecondary": "#6B7280",
+    "success": "#10B981"
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "image": "13_home.png",
+      "eyebrow": "APP NAME",
+      "title": "One-line hook",
+      "narration": "1-3 sentences of spoken narration for this scene. Keep it natural to read aloud.",
+      "seconds": 13
+    },
+    {
+      "id": "some-feature",
+      "image": "05_some_screen.png",
+      "eyebrow": "SECTION LABEL",
+      "title": "Feature Title",
+      "narration": "What this screen does and why it matters, in plain spoken language.",
+      "seconds": 12
+    },
+    {
+      "id": "outro",
+      "image": "13_home.png",
+      "eyebrow": "APP NAME",
+      "title": "Thank You",
+      "narration": "Closing line wrapping up the walkthrough.",
+      "seconds": 10
+    }
+  ]
+}
