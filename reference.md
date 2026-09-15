@@ -195,10 +195,34 @@ designed to sit on a light background) and your scene background is the
 brand's dark color, wrap it in a white rounded card/pill rather than
 inventing a light-mode variant — cheap and looks intentional.
 
-**Keep motion subtle or off if asked.** A Ken Burns pan/zoom on every screen
-reads as "busy" in a 15+ scene walkthrough; default to a static image in the
-phone frame with just an entrance spring + text fade, and only add
-pan/zoom back in if specifically requested.
+**Default to no motion beyond a plain crossfade.** The template's baseline
+is: a scene fades in, holds static, fades out — no entrance springs, no
+sliding text, no pan/zoom on the screenshot. This isn't just a Ken-Burns
+call; even the "subtle" entrance-spring version (frame slides up 60px,
+title slides up 24px and fades in) reads as fussy once you've got 6+ scenes
+back to back. Only add motion back in if specifically requested, and start
+with something small.
+
+**`AbsoluteFill` hardcodes `width: 100%` — overriding only `left` on it
+pushes content off-screen instead of narrowing it.** This is exactly the
+kind of bug that doesn't error, just silently renders wrong: wrapping a
+side-panel layout's "everything to the right of the sidebar" region in
+`<AbsoluteFill style={{ left: 620, ... }}>` does NOT give you a 620px-to-
+edge region. `AbsoluteFill`'s own style sets an explicit `width: '100%'`
+(and `right: 0`) already; your `left: 620` override doesn't touch `width`,
+so the element becomes 100%-of-parent wide *starting* at x=620 — meaning
+its right edge lands 620px past the actual frame boundary, and everything
+centered inside it (a "centered" browser-chrome mockup, in this case)
+renders shifted right and clipped off the edge, while still looking
+plausible enough in a quick glance to miss. Fix: don't use `AbsoluteFill`
+for a partial-width region at all — use a plain `<div>` with
+`position: "absolute", top: 0, left: 620, right: 0, bottom: 0`, which
+correctly derives its width from the left/right offsets instead of
+fighting a hardcoded one. Any time you override just one offset on an
+`AbsoluteFill` (`left`, `right`, `top`, or `bottom`) without also touching
+the matching size (`width`/`height`), check the actual rendered frame
+before trusting it — don't assume centering math worked from reading the
+JSX alone.
 
 **Web-platform screenshots have an unpredictable aspect ratio — always
 letterbox, never assume it fills the frame.** A mobile screenshot is always
