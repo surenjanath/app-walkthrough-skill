@@ -1,20 +1,14 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Img,
-  Audio,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
-  interpolate,
-  spring,
-} from "remotion";
+import { AbsoluteFill, Img, Audio, staticFile, useCurrentFrame, interpolate } from "remotion";
 import type { Scene as SceneType } from "./scenes";
 import { BRAND } from "./scenes";
 import { OUTFIT, MANROPE } from "./fonts";
 
 const FADE_FRAMES = 15;
 
+// The only motion in these scenes: a crossfade at the start/end of each
+// scene's Sequence, so cuts aren't jarring. No entrance springs, no
+// pan/zoom, no sliding text — deliberately static otherwise.
 function useFade(durationInFrames: number) {
   const frame = useCurrentFrame();
   return interpolate(
@@ -119,10 +113,7 @@ export const TitleCard: React.FC<{
   scene: SceneType;
   durationInFrames: number;
 }> = ({ scene, durationInFrames }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const opacity = useFade(durationInFrames);
-  const rise = spring({ frame, fps, from: 30, to: 0, durationInFrames: 40 });
   const audioAvailable = hasAudio(scene.id);
 
   return (
@@ -136,15 +127,7 @@ export const TitleCard: React.FC<{
       }}
     >
       {audioAvailable ? <Audio src={staticFile(`audio/${scene.id}.mp3`)} /> : null}
-      <div
-        style={{
-          transform: `translateY(${rise}px)`,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 36,
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 36 }}>
         <LogoBadge width={260} padding={26} />
         <div
           style={{
@@ -183,19 +166,8 @@ export const ScreenShowcase: React.FC<{
   durationInFrames: number;
   index: number;
 }> = ({ scene, durationInFrames }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const opacity = useFade(durationInFrames);
   const audioAvailable = hasAudio(scene.id);
-
-  const enter = spring({ frame, fps, from: 60, to: 0, durationInFrames: 35 });
-  const textIn = spring({
-    frame: frame - 8,
-    fps,
-    from: 24,
-    to: 0,
-    durationInFrames: 30,
-  });
 
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.bg, opacity }}>
@@ -215,14 +187,7 @@ export const ScreenShowcase: React.FC<{
       <AbsoluteFill
         style={{ justifyContent: "flex-start", alignItems: "center", paddingTop: 56 }}
       >
-        <div
-          style={{
-            transform: `translateY(${textIn}px)`,
-            opacity: interpolate(textIn, [0, 24], [1, 0]),
-          }}
-        >
-          <LogoBadge width={128} padding={12} />
-        </div>
+        <LogoBadge width={128} padding={12} />
 
         <div
           style={{
@@ -233,8 +198,6 @@ export const ScreenShowcase: React.FC<{
             letterSpacing: 3,
             color: BRAND.gold,
             textTransform: "uppercase",
-            transform: `translateY(${textIn}px)`,
-            opacity: interpolate(textIn, [0, 24], [1, 0]),
           }}
         >
           {scene.eyebrow}
@@ -250,8 +213,6 @@ export const ScreenShowcase: React.FC<{
             textAlign: "center",
             paddingLeft: 70,
             paddingRight: 70,
-            transform: `translateY(${textIn}px)`,
-            opacity: interpolate(textIn, [0, 24], [1, 0]),
           }}
         >
           {scene.title}
@@ -266,7 +227,6 @@ export const ScreenShowcase: React.FC<{
             backgroundColor: "#0B0F0C",
             padding: 14,
             boxShadow: "0 40px 80px -20px rgba(18,32,24,0.55)",
-            transform: `translateY(${enter}px)`,
             overflow: "hidden",
           }}
         >
@@ -305,24 +265,16 @@ export const ScreenShowcase: React.FC<{
 };
 
 // Landscape layout for "web" platform (websites / web apps): a dark side
-// panel with the title copy, and a browser-chrome-framed screenshot filling
-// the rest of the 1920x1080 frame. No pan/zoom, matching the mobile layout.
+// panel with the title copy, and a browser-chrome-framed screenshot centered
+// in the rest of the 1920x1080 frame. No pan/zoom, matching the mobile layout.
 export const WebScreenShowcase: React.FC<{
   scene: SceneType;
   durationInFrames: number;
   index: number;
 }> = ({ scene, durationInFrames }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const opacity = useFade(durationInFrames);
   const audioAvailable = hasAudio(scene.id);
-
-  const enter = spring({ frame, fps, from: 60, to: 0, durationInFrames: 35 });
-  const textIn = spring({ frame: frame - 8, fps, from: 24, to: 0, durationInFrames: 30 });
-  const textStyle = {
-    transform: `translateY(${textIn}px)`,
-    opacity: interpolate(textIn, [0, 24], [1, 0]),
-  };
+  const SIDE_PANEL_WIDTH = 620;
 
   return (
     <AbsoluteFill style={{ backgroundColor: BRAND.bg, opacity, flexDirection: "row" }}>
@@ -330,7 +282,7 @@ export const WebScreenShowcase: React.FC<{
 
       <div
         style={{
-          width: 620,
+          width: SIDE_PANEL_WIDTH,
           flexShrink: 0,
           height: "100%",
           background: `linear-gradient(160deg, ${BRAND.primary} 0%, ${BRAND.primaryDark} 100%)`,
@@ -340,12 +292,9 @@ export const WebScreenShowcase: React.FC<{
           padding: "0 64px",
         }}
       >
-        <div style={textStyle}>
-          <LogoBadge width={150} padding={14} />
-        </div>
+        <LogoBadge width={150} padding={14} />
         <div
           style={{
-            ...textStyle,
             marginTop: 32,
             fontFamily: MANROPE,
             fontWeight: 700,
@@ -359,7 +308,6 @@ export const WebScreenShowcase: React.FC<{
         </div>
         <div
           style={{
-            ...textStyle,
             marginTop: 14,
             fontFamily: OUTFIT,
             fontWeight: 500,
@@ -372,30 +320,36 @@ export const WebScreenShowcase: React.FC<{
         </div>
       </div>
 
-      <AbsoluteFill
+      {/* Plain positioned div, not AbsoluteFill: AbsoluteFill hardcodes
+          width: 100%, so overriding just `left` on it pushes this region
+          off the right edge of the frame instead of shrinking it. */}
+      <div
         style={{
-          left: 620,
+          position: "absolute",
+          top: 0,
+          left: SIDE_PANEL_WIDTH,
+          right: 0,
+          bottom: 0,
+          display: "flex",
           justifyContent: "center",
           alignItems: "center",
           padding: 70,
         }}
       >
-        <div style={{ transform: `translateY(${enter}px)` }}>
-          <BrowserChrome url={scene.url} width={1140} height={780}>
-            {scene.image ? (
-              <Img
-                src={staticFile(`screens/${scene.image}`)}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  display: "block",
-                }}
-              />
-            ) : null}
-          </BrowserChrome>
-        </div>
-      </AbsoluteFill>
+        <BrowserChrome url={scene.url} width={1140} height={780}>
+          {scene.image ? (
+            <Img
+              src={staticFile(`screens/${scene.image}`)}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          ) : null}
+        </BrowserChrome>
+      </div>
     </AbsoluteFill>
   );
 };
